@@ -3,19 +3,19 @@ import sys
 import configparser
 import random
 from datetime import datetime
+from io import BytesIO
 
 import telebot
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
+from dotenv import load_dotenv
 
-config_path = os.path.join(sys.path[0], 'settings.ini')
-config = configparser.ConfigParser()
-config.read(config_path)
+load_dotenv()
 
-BOT_TOKEN = config.get('Telegram', 'BOT_TOKEN')
-CHANNEL = config.get('Telegram', 'TG_CHANNEL')
-PIC_PATH = config.get('Bot_settings', 'PIC_PATH')
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHANNEL = os.getenv("TG_CHANNEL")
+PIC_PATH = os.getenv("PIC_PATH")
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -46,26 +46,30 @@ def memes_maker(message):
 
     with open(image_name, 'wb') as new_file:
         new_file.write(downloaded_file)
+
     image = generate_signature(Image.open(image_name))
-    image.save('test.jpg')
-    bot.send_photo(message.chat.id, photo=open('test.jpg', 'rb'))
+    imgByteArr = BytesIO()
+    image.save(imgByteArr, format='PNG')
+    bot.send_photo(message.chat.id, imgByteArr.getvalue())
+    # keyboard1 = telebot.types.ReplyKeyboardMarkup()
+    # keyboard1.row('Да', 'Нет')
 
 
 def generate_signature(image):
     """
     Выбирает подпись из файла сборника и рисует ее на картинке
     """
-
     with open('signature_collection.txt') as f:
         sign_list = f.read().splitlines()
     random_message = random.choice(sign_list)
 
-    font = ImageFont.truetype('Lobster.ttf', 48)  # Загрузка шрифта и установка размера
+    font = ImageFont.truetype('Lobster.ttf', 42)  # Загрузка шрифта и установка размера
     font_color = (0, 0, 0)  # Цвет шрифта
     signature_pos = (50, 50)  # Координаты первой буквы подписи на загруженной картинке
 
     drawing = ImageDraw.Draw(image)
     drawing.text(signature_pos, random_message, font=font, fill=font_color)
+
     return image
 
 
