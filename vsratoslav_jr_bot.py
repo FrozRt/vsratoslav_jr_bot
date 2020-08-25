@@ -1,6 +1,5 @@
 import os
 import sys
-import configparser
 import random
 from datetime import datetime
 from io import BytesIO
