@@ -50,9 +50,12 @@ def memes_maker(message):
     image = generate_signature(Image.open(image_name))
     imgByteArr = BytesIO()
     image.save(imgByteArr, format='PNG')
-    bot.send_photo(message.chat.id, imgByteArr.getvalue())
-    # keyboard1 = telebot.types.ReplyKeyboardMarkup()
-    # keyboard1.row('Да', 'Нет')
+
+    keyboard1 = telebot.types.ReplyKeyboardMarkup(True, True)
+    keyboard1.row('Да', 'Нет')
+
+    if bot.send_photo(message.chat.id, imgByteArr.getvalue(), reply_markup=keyboard1):
+        bot.send_message(message.chat.id, "Как насчет того, чтобы разместить мем на нашем канале?")
 
 
 def generate_signature(image):
@@ -71,6 +74,14 @@ def generate_signature(image):
     drawing.text(signature_pos, random_message, font=font, fill=font_color)
 
     return image
+
+
+@bot.message_handler(content_types=['text'])
+def send_text(message):
+    if message.text == 'Да':
+        bot.forward_message(CHANNEL, message.chat.id, message_id=message.message_id - 2)
+    else:
+        bot.send_message(message.chat.id, "Заглядывай за новыми мемами!")
 
 
 if __name__ == '__main__':
