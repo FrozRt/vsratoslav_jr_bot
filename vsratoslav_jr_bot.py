@@ -37,7 +37,7 @@ def handle_start(message):
 def memes_maker(message):
     """
     Получает отправленную пользователем картинку, сохраняет ее по указанному в настройках пути,
-    отправляет в функцию-обработчик и отсылает готовый мемес обратно пользователю
+    отправляет в функцию-обработчик и отсылает готовый мемес обратно пользователю, предложив поделиться им в канале
     """
     fileID = message.photo[-1].file_id
     file_info = bot.get_file(fileID)
@@ -77,7 +77,10 @@ def generate_signature(image):
 
 
 @bot.message_handler(content_types=['text'])
-def send_text(message):
+def forward_picture(message):
+    """
+    Пересылает обработанную картинку в зависимости от выбора пользователя
+    """
     if message.text == 'Да':
         bot.forward_message(CHANNEL, message.chat.id, message_id=message.message_id - 2)
     else:
